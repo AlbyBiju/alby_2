@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simple Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #f5f0e8;
+      --card:     #ffffff;
+      --ink:      #1a1a1a;
+      --muted:    #999;
+      --border:   #e0d9ce;
+      --add:      #1a1a1a;
+      --add-txt:  #f5f0e8;
+      --sub:      #f5f0e8;
+      --sub-txt:  #1a1a1a;
+      --accent:   #e8533a;
+      --mono:     'Space Mono', monospace;
+      --sans:     'Outfit', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .prog-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: clamp(2.2rem, 7vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    h1 em {
+      font-style: normal;
+      color: var(--accent);
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+    }
+
+    /* ── Input group ── */
+    .input-group {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .field input {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 14px;
+      font-family: var(--mono);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+      text-align: center;
+    }
+
+    .field input::-webkit-outer-spin-button,
+    .field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .field input::placeholder { color: #ccc; font-weight: 400; }
+
+    .field input:focus { border-color: var(--ink); }
+
+    .op-symbol {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: center;
+      padding-top: 20px;
+      user-select: none;
+    }
+
+    /* ── Buttons ── */
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .btn {
+      border: 1.5px solid var(--ink);
+      border-radius: 12px;
+      padding: 15px 12px;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.12s, box-shadow 0.12s, background 0.15s;
+    }
+
+    .btn:active { transform: scale(0.96); }
+
+    .btn-add {
+      background: var(--add);
+      color: var(--add-txt);
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.12);
+    }
+
+    .btn-add:hover {
+      background: #333;
+      box-shadow: 5px 5px 0 rgba(0,0,0,0.1);
+    }
+
+    .btn-sub {
+      background: var(--sub);
+      color: var(--sub-txt);
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.08);
+    }
+
+    .btn-sub:hover {
+      background: #eee;
+      box-shadow: 5px 5px 0 rgba(0,0,0,0.06);
+    }
+
+    .btn-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    /* ── Result ── */
+    .result-box {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 76px;
+      transition: border-color 0.3s;
+    }
+
+    .result-box.has-result { border-color: var(--ink); }
+
+    .result-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .result-value {
+      font-family: var(--mono);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--ink);
+      transition: color 0.2s;
+    }
+
+    .result-value.fresh { color: var(--accent); }
+
+    .result-expr {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .result-left { display: flex; flex-direction: column; gap: 2px; }
+
+    /* ── Error ── */
+    .error {
+      font-size: 12px;
+      color: var(--accent);
+      text-align: center;
+      margin-top: 12px;
+      min-height: 18px;
+      font-weight: 500;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 24px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <p class="prog-tag">Program 2</p>
+    <h1>Simple <em>Calc</em></h1>
+  </div>
+
+  <div class="card">
+    <!-- Input fields -->
+    <div class="input-group">
+      <div class="field">
+        <label for="numA">Number A</label>
+        <input type="number" id="numA" placeholder="0"/>
+      </div>
+      <div class="op-symbol" id="opSymbol">?</div>
+      <div class="field">
+        <label for="numB">Number B</label>
+        <input type="number" id="numB" placeholder="0"/>
+      </div>
+    </div>
+
+    <!-- Operation buttons -->
+    <div class="btn-row">
+      <button class="btn btn-add" onclick="calculate('add')">
+        <span class="btn-icon">＋</span> Addition
+      </button>
+      <button class="btn btn-sub" onclick="calculate('sub')">
+        <span class="btn-icon">－</span> Subtraction
+      </button>
+    </div>
+
+    <!-- Result display -->
+    <div class="result-box" id="resultBox">
+      <div class="result-left">
+        <span class="result-label">Result</span>
+        <span class="result-expr" id="resultExpr">—</span>
+      </div>
+      <span class="result-value" id="resultVal">—</span>
+    </div>
+
+    <p class="error" id="errorMsg"></p>
+  </div>
+
+  <footer>simple_calculator.html &nbsp;|&nbsp; HTML · CSS · JS</footer>
+
+  <script>
+    // ── JavaScript functions for each operation ──
+
+    function add(a, b) {       // Step 3: If Add → result = a + b
+      return a + b;
+    }
+
+    function subtract(a, b) {  // Step 4: If Subtract → result = a - b
+      return a - b;
+    }
+
+    function calculate(operation) {
+      const errorEl  = document.getElementById('errorMsg');
+      const resultBox = document.getElementById('resultBox');
+      const resultVal = document.getElementById('resultVal');
+      const resultExpr = document.getElementById('resultExpr');
+      const opSymbol  = document.getElementById('opSymbol');
+
+      // Step 2: Read two numbers a and b
+      const inputA = document.getElementById('numA').value.trim();
+      const inputB = document.getElementById('numB').value.trim();
+
+      // Validate
+      if (inputA === '' || inputB === '') {
+        errorEl.textContent = '⚠ Please enter both numbers.';
+        resultBox.classList.remove('has-result');
+        resultVal.textContent = '—';
+        resultExpr.textContent = '—';
+        opSymbol.textContent = '?';
+        return;
+      }
+
+      errorEl.textContent = '';
+
+      const a = parseFloat(inputA);
+      const b = parseFloat(inputB);
+
+      let result, symbol, label;
+
+      if (operation === 'add') {        // Step 3
+        result = add(a, b);
+        symbol = '+';
+        label  = 'Addition';
+      } else {                          // Step 4
+        result = subtract(a, b);
+        symbol = '−';
+        label  = 'Subtraction';
+      }
+
+      // Step 5: Display result
+      opSymbol.textContent = symbol;
+      resultExpr.textContent = `${a} ${symbol} ${b} =`;
+      resultVal.textContent = result % 1 === 0 ? result : result.toFixed(4).replace(/\.?0+$/, '');
+
+      // Animate result
+      resultVal.classList.remove('fresh');
+      void resultVal.offsetWidth;
+      resultVal.classList.add('fresh');
+      setTimeout(() => resultVal.classList.remove('fresh'), 800);
+
+      resultBox.classList.add('has-result');
+    }
+
+    // Allow Enter key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const lastOp = document.getElementById('opSymbol').textContent;
+        if (lastOp === '+') calculate('add');
+        else if (lastOp === '−') calculate('sub');
+      }
+    });
+  </script>
+</body>
+</html>
